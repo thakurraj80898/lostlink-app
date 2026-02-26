@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+
+  lostItems     LostItem[]
+  foundItems    FoundItem[]
+  matchRequests MatchRequest[]
+
+  @@index([email])
+}
+
+model LostItem {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  category    String
+  location    String
+  dateLost    DateTime
+  images      String[]
+  status      ItemStatus @default(LOST)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+
+  matchRequests MatchRequest[]
+
+  @@index([userId])
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model FoundItem {
+  id          String          @id @default(uuid())
+  title       String
+  description String
+  category    String
+  location    String
+  dateFound   DateTime
+  images      String[]
+  status      FoundItemStatus @default(FOUND)
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now())
+
+  matchRequests MatchRequest[]
+
+  @@index([userId])
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model MatchRequest {
+  id          String       @id @default(uuid())
+  lostItemId  String
+  foundItemId String
+  requesterId String
+  message     String?
+  status      MatchStatus  @default(PENDING)
+  createdAt   DateTime     @default(now())
+
+  lostItem  LostItem  @relation(fields: [lostItemId], references: [id], onDelete: Cascade)
+  foundItem FoundItem @relation(fields: [foundItemId], references: [id], onDelete: Cascade)
+  requester User      @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+
+  @@index([lostItemId])
+  @@index([foundItemId])
+  @@index([requesterId])
+  @@index([status])
+}
+
+enum Role {
+  USER
+  ADMIN
+  BLOCKED
+}
+
+enum ItemStatus {
+  LOST
+  MATCHED
+}
+
+enum FoundItemStatus {
+  FOUND
+  MATCHED
+}
+
+enum MatchStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
