@@ -53,7 +53,7 @@ export default function MyReports() {
           {items.map((item) => (
             <div key={item.id} className="bg-white rounded-lg shadow p-4 flex gap-4">
               {item.images && item.images[0] && (
-                <img src={item.images[0]} alt={item.title} className="w-24 h-24 object-cover rounded" />
+                <img src={`http://localhost:5000${item.images[0]}`} alt={item.title} className="w-24 h-24 object-cover rounded" />
               )}
               <div className="flex-1">
                 <span className={`text-xs px-2 py-1 rounded ${item.type === 'lost' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
